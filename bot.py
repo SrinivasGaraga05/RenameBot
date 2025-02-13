@@ -18,8 +18,12 @@ async def rename_file(client, message):
     
     await message.reply("Send me the new filename (without extension):")
     
-   response = await client.ask(message.chat.id, "Send a new filename:")
+    # ✅ FIXED INDENTATION HERE
+    response = await client.ask(message.chat.id, "Send a new filename:")
     
+    # ✅ FIXED UNDEFINED VARIABLE
+    new_filename = response.text.strip()
+
     ext = message.document.file_name.split('.')[-1] if message.document else "mp4"
     
     file_path = await message.download()
