@@ -10,29 +10,38 @@ API_HASH = os.getenv("API_HASH")
 # Initialize the bot
 app = Client("rename_bot", bot_token=BOT_TOKEN, api_id=API_ID, api_hash=API_HASH)
 
-# Handle incoming files
-@app.on_message(filters.document | filters.video | filters.photo)
-async def rename_file(client, message):
-    if not message.document and not message.video and not message.photo:
-        return
-    
-    await message.reply("Send me the new filename (without extension):")
-    
-    # ✅ FIXED INDENTATION HERE
-    response = await client.ask(message.chat.id, "Send a new filename:")
-    
-    # ✅ FIXED UNDEFINED VARIABLE
-    new_filename = response.text.strip()
+# Dictionary to store user file download paths
+user_files = {}
 
-    ext = message.document.file_name.split('.')[-1] if message.document else "mp4"
-    
+@app.on_message(filters.document | filters.video | filters.photo)
+async def request_new_filename(client, message):
+    if message.document:
+        ext = message.document.file_name.split('.')[-1]
+    elif message.video:
+        ext = "mp4"
+    else:  # Photo case
+        ext = "jpg"
+
     file_path = await message.download()
+    user_files[message.chat.id] = (file_path, ext)
+
+    await message.reply("Send me the new filename (without extension):")
+
+@app.on_message(filters.text & filters.reply)
+async def rename_and_send(client, message):
+    chat_id = message.chat.id
+    if chat_id not in user_files:
+        await message.reply("No file found to rename. Please send a file first.")
+        return
+
+    new_filename = message.text.strip()
+    file_path, ext = user_files.pop(chat_id)
+
     new_path = f"{new_filename}.{ext}"
-    
     os.rename(file_path, new_path)
 
     await message.reply_document(new_path, caption="Here is your renamed file!")
-    
+
     os.remove(new_path)
 
 # Start the bot
