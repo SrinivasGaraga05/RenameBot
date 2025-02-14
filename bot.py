@@ -1,6 +1,22 @@
 import os
 import asyncio
+import threading
 from pyrogram import Client, filters
+from flask import Flask
+
+# Create a dummy Flask app to satisfy Render’s port requirement
+app = Flask(_name_)
+
+@app.route('/')
+def home():
+    return "Bot is running!"
+
+# Run Flask in the background
+def run_dummy_server():
+    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 8080)))
+
+# Start Flask server in a separate thread
+threading.Thread(target=run_dummy_server, daemon=True).start()
 
 # Get bot token and API credentials from environment variables
 BOT_TOKEN = os.getenv("BOT_TOKEN")
@@ -8,12 +24,12 @@ API_ID = os.getenv("API_ID")
 API_HASH = os.getenv("API_HASH")
 
 # Initialize the bot
-app = Client("rename_bot", bot_token=BOT_TOKEN, api_id=API_ID, api_hash=API_HASH)
+bot = Client("rename_bot", bot_token=BOT_TOKEN, api_id=API_ID, api_hash=API_HASH)
 
 # Dictionary to store user file download paths
 user_files = {}
 
-@app.on_message(filters.document | filters.video | filters.photo)
+@bot.on_message(filters.document | filters.video | filters.photo)
 async def request_new_filename(client, message):
     if message.document:
         ext = message.document.file_name.split('.')[-1]
@@ -27,7 +43,7 @@ async def request_new_filename(client, message):
 
     await message.reply("Send me the new filename (without extension):")
 
-@app.on_message(filters.text & filters.reply)
+@bot.on_message(filters.text & filters.reply)
 async def rename_and_send(client, message):
     chat_id = message.chat.id
     if chat_id not in user_files:
@@ -45,4 +61,4 @@ async def rename_and_send(client, message):
     os.remove(new_path)
 
 # Start the bot
-app.run()
+bot.run()
