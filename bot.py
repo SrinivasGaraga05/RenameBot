@@ -7,7 +7,7 @@ from flask import Flask
 from flask import Flask
 
 # Create a Flask application instance
-app = Flask(_name_)
+app = Flask(__name__)
 
 # Define a simple route
 @app.route('/')
