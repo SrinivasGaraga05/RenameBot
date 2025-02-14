@@ -5,7 +5,7 @@ from pyrogram import Client, filters
 from flask import Flask
 
 # Create a dummy Flask app to satisfy Render’s port requirement
-app = Flask(_name_)
+app = Flask(__name__)
 
 @app.route('/')
 def home():
