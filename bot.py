@@ -15,7 +15,7 @@ def home():
     return "Bot is running!"
 
 # Ensure this runs only in development mode, not with Gunicorn
-if _name_ == "_main_":
+if __name__ == "_main_":
     app.run()
 @app.route('/')
 def home():
