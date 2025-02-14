@@ -4,9 +4,19 @@ import threading
 from pyrogram import Client, filters
 from flask import Flask
 
-# Create a dummy Flask app to satisfy Render’s port requirement
-app = Flask(__name__)
+from flask import Flask
 
+# Create a Flask application instance
+app = Flask(_name_)
+
+# Define a simple route
+@app.route('/')
+def home():
+    return "Bot is running!"
+
+# Ensure this runs only in development mode, not with Gunicorn
+if _name_ == "_main_":
+    app.run()
 @app.route('/')
 def home():
     return "Bot is running!"
